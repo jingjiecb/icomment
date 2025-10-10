@@ -50,7 +50,13 @@ func (s *Server) GetComments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.jsonResponse(w, comments, http.StatusOK)
+	// Convert to public comments (remove sensitive data)
+	publicComments := make([]model.PublicComment, len(comments))
+	for i, c := range comments {
+		publicComments[i] = c.ToPublic()
+	}
+
+	s.jsonResponse(w, publicComments, http.StatusOK)
 }
 
 // POST /api/comments
