@@ -213,6 +213,18 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
+**重要：确保数据库目录权限正确**
+```bash
+# 创建数据目录
+mkdir -p /var/lib/icomment
+
+# 设置正确的所有者（与 systemd User 一致）
+chown www-data:www-data /var/lib/icomment
+
+# 确保有写权限
+chmod 755 /var/lib/icomment
+```
+
 ## 命令行参数
 
 ```bash
