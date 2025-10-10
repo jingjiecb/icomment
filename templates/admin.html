@@ -117,34 +117,43 @@
             color: #999;
         }
 
-        .content {
-            margin: 5px 0;
-            line-height: 1.5;
-            max-width: 300px;
-        }
-
-        .content-preview {
-            max-height: 3em;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+        .expand-toggle {
+            background: none;
+            border: none;
+            font-size: 20px;
             cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: transform 0.2s;
         }
 
-        .content-full {
-            white-space: pre-wrap;
-            word-break: break-word;
+        .expand-toggle:hover {
+            color: #333;
         }
 
-        .expand-btn {
-            color: #2196F3;
-            cursor: pointer;
-            font-size: 0.85em;
-            text-decoration: underline;
-            margin-top: 5px;
-            display: inline-block;
+        .expand-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .detail-row td {
+            border-top: none !important;
+        }
+
+        .comment-row:hover {
+            background: #fafafa;
+        }
+
+        .pending-row {
+            background: #fffbf0;
+        }
+
+        .pending-row:hover {
+            background: #fff8e1;
         }
 
         .reply-indicator {
@@ -189,19 +198,16 @@
                 .catch(err => alert('Failed to delete comment'));
         }
 
-        function toggleContent(id) {
-            const preview = document.getElementById(`preview-${id}`);
-            const full = document.getElementById(`full-${id}`);
-            const toggle = document.getElementById(`toggle-${id}`);
+        function toggleRow(id) {
+            const detailRow = document.getElementById(`detail-${id}`);
+            const toggleBtn = document.getElementById(`toggle-${id}`);
 
-            if (full.style.display === 'none') {
-                preview.style.display = 'none';
-                full.style.display = 'block';
-                toggle.textContent = 'Show less';
+            if (detailRow.style.display === 'none') {
+                detailRow.style.display = 'table-row';
+                toggleBtn.classList.add('expanded');
             } else {
-                preview.style.display = 'block';
-                full.style.display = 'none';
-                toggle.textContent = 'Show more';
+                detailRow.style.display = 'none';
+                toggleBtn.classList.remove('expanded');
             }
         }
     </script>
@@ -242,49 +248,113 @@
             <table>
                 <thead>
                     <tr>
+                        <th style="width: 30px;"></th>
                         <th>ID</th>
                         <th>Status</th>
-                        <th>Article URL</th>
                         <th>Author</th>
-                        <th>Content</th>
-                        <th>Time (UTC)</th>
+                        <th>Content Preview</th>
+                        <th>Time</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{range .Comments}}
-                    <tr {{if eq .Status "pending" }}style="background: #fffbf0;" {{end}}>
+                    <tr {{if eq .Status "pending" }}class="pending-row" {{end}}class="comment-row">
+                        <td>
+                            <button onclick="toggleRow({{.ID}})" class="expand-toggle" id="toggle-{{.ID}}">›</button>
+                        </td>
                         <td>{{.ID}}</td>
                         <td>
                             {{if eq .Status "approved"}}
-                            <span style="color: #4caf50; font-weight: 500;">✓ Approved</span>
+                            <span style="color: #4caf50; font-weight: 500;">✓</span>
                             {{else}}
-                            <span style="color: #ff9800; font-weight: 500;">⏳ Pending</span>
+                            <span style="color: #ff9800; font-weight: 500;">⏳</span>
                             {{end}}
                         </td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                            {{if .ParentID}}<span class="reply-indicator">↳ Reply to #{{.ParentID}}</span><br>{{end}}
-                            <a href="{{.ArticleURL}}" target="_blank" rel="noopener noreferrer"
-                                style="color: #2196F3; text-decoration: none;">{{.ArticleURL}}</a>
-                        </td>
                         <td>
-                            <strong>{{.Nickname}}</strong><br>
-                            <span class="meta">{{.Email}}</span>
+                            <strong>{{.Nickname}}</strong>
+                            {{if .Email}}<br><span class="meta">{{.Email}}</span>{{end}}
                         </td>
-                        <td class="content">
-                            <div class="content-preview" id="preview-{{.ID}}" onclick="toggleContent({{.ID}})">
-                                {{.Content}}</div>
-                            <div class="content-full" id="full-{{.ID}}" style="display: none;">{{.Content}}</div>
-                            <span class="expand-btn" id="toggle-{{.ID}}" onclick="toggleContent({{.ID}})">Show
-                                more</span>
+                        <td style="max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{.Content}}
                         </td>
-                        <td class="meta">{{.CreatedAt}}</td>
-                        <td>
+                        <td class="meta" style="white-space: nowrap;">{{.CreatedAt}}</td>
+                        <td style="white-space: nowrap;">
                             {{if eq .Status "pending"}}
                             <button onclick="approveComment({{.ID}})"
                                 style="padding: 6px 12px; font-size: 13px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">Approve</button>
                             {{end}}
                             <button onclick="deleteComment({{.ID}})" class="delete-btn">Delete</button>
+                        </td>
+                    </tr>
+                    <tr id="detail-{{.ID}}" class="detail-row" style="display: none;">
+                        <td colspan="7" style="padding: 20px; background: #f9f9f9; border-top: none;">
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">ID:</div>
+                                    <div>{{.ID}}</div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Status:</div>
+                                    <div>
+                                        {{if eq .Status "approved"}}
+                                        <span style="color: #4caf50; font-weight: 500;">✓ Approved</span>
+                                        {{else}}
+                                        <span style="color: #ff9800; font-weight: 500;">⏳ Pending Approval</span>
+                                        {{end}}
+                                    </div>
+                                </div>
+                                
+                                {{if .ParentID}}
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Reply To:</div>
+                                    <div><span class="reply-indicator">Comment #{{.ParentID}}</span></div>
+                                </div>
+                                {{end}}
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Article URL:</div>
+                                    <div style="word-break: break-all;">
+                                        <a href="{{.ArticleURL}}" target="_blank" rel="noopener noreferrer"
+                                            style="color: #2196F3; text-decoration: none;">{{.ArticleURL}}</a>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Nickname:</div>
+                                    <div>{{.Nickname}}</div>
+                                </div>
+                                
+                                {{if .Email}}
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Email:</div>
+                                    <div>{{.Email}}</div>
+                                </div>
+                                {{end}}
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Content:</div>
+                                    <div style="white-space: pre-wrap; word-break: break-word; line-height: 1.6; flex: 1;">{{.Content}}</div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Created:</div>
+                                    <div>{{.CreatedAt}} UTC</div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                    <div style="font-weight: 600; color: #666; min-width: 100px;">Actions:</div>
+                                    <div>
+                                        {{if eq .Status "pending"}}
+                                        <button onclick="approveComment({{.ID}})"
+                                            style="padding: 8px 16px; font-size: 14px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Approve</button>
+                                        {{end}}
+                                        <button onclick="deleteComment({{.ID}})"
+                                            style="padding: 8px 16px; font-size: 14px; background: #d32f2f; color: white; border: none; border-radius: 4px; cursor: pointer;">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {{end}}
