@@ -37,6 +37,10 @@
       cursor: pointer; 
     }
     .icomment-button:hover { background: #555; }
+    .icomment-form-footer { display: flex; justify-content: space-between; align-items: center; }
+    .icomment-powered { font-size: 0.75em; color: #999; }
+    .icomment-powered a { color: #999; text-decoration: none; }
+    .icomment-powered a:hover { color: #666; text-decoration: underline; }
     .icomment-list { list-style: none; padding: 0; }
     .icomment-item { 
       margin-bottom: 20px; 
@@ -73,6 +77,8 @@
         color: #fff; 
       }
       .icomment-button:hover { background: #666; }
+      .icomment-powered a { color: #777; }
+      .icomment-powered a:hover { color: #999; }
       .icomment-item { 
         border-color: #444; 
         background: #1a1a1a;
@@ -257,7 +263,10 @@
           <input type="text" id="icomment-nickname" class="icomment-input" placeholder="Nickname" maxlength="${MAX_NICKNAME_LENGTH}" required>
           <input type="email" id="icomment-email" class="icomment-input" placeholder="Email (optional)" maxlength="${MAX_EMAIL_LENGTH}">
           <textarea id="icomment-content" class="icomment-textarea" placeholder="Your comment..." maxlength="${MAX_CONTENT_LENGTH}" required></textarea>
-          <button class="icomment-button" id="icomment-submit">Submit</button>
+          <div class="icomment-form-footer">
+            <button class="icomment-button" id="icomment-submit">Submit</button>
+            <div class="icomment-powered">Powered by <a href="https://github.com/jingjiecb/icomment" target="_blank" rel="noopener noreferrer">iComment</a></div>
+          </div>
         </div>
         <div id="icomment-list" class="icomment-list"></div>
       </div>
