@@ -59,7 +59,6 @@ func (dao *CommentDao) GetCommentsByURL(url string) ([]model.Comment, error) {
 type CommentFilter struct {
 	Status     string // "all", "pending", "approved"
 	ArticleURL string
-	Email      string
 	Page       int
 	PageSize   int
 }
@@ -79,12 +78,6 @@ func (dao *CommentDao) GetCommentsWithFilter(filter CommentFilter) ([]model.Comm
 		query += " AND article_url LIKE ?"
 		countQuery += " AND article_url LIKE ?"
 		args = append(args, filter.ArticleURL+"%")
-	}
-
-	if filter.Email != "" {
-		query += " AND email = ?"
-		countQuery += " AND email = ?"
-		args = append(args, filter.Email)
 	}
 
 	// Get total count

@@ -22,6 +22,41 @@
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 
+  // Validation constants
+  const MAX_NICKNAME_LENGTH = 50;
+  const MAX_EMAIL_LENGTH = 100;
+  const MAX_CONTENT_LENGTH = 2000;
+
+  function validateEmail(email) {
+    if (!email) return true; // Email is optional
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  function validateInput(nickname, email, content) {
+    if (!nickname || nickname.length > MAX_NICKNAME_LENGTH) {
+      alert(`Nickname is required and must be less than ${MAX_NICKNAME_LENGTH} characters.`);
+      return false;
+    }
+    
+    if (email && !validateEmail(email)) {
+      alert('Please enter a valid email address.');
+      return false;
+    }
+    
+    if (email && email.length > MAX_EMAIL_LENGTH) {
+      alert(`Email must be less than ${MAX_EMAIL_LENGTH} characters.`);
+      return false;
+    }
+    
+    if (!content || content.length > MAX_CONTENT_LENGTH) {
+      alert(`Comment is required and must be less than ${MAX_CONTENT_LENGTH} characters.`);
+      return false;
+    }
+    
+    return true;
+  }
+
   function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -85,9 +120,9 @@
     const container = document.getElementById(`reply-form-${parentId}`);
     container.innerHTML = `
       <div style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 3px;">
-        <input type="text" id="reply-nickname-${parentId}" class="icomment-input" placeholder="Nickname" required>
-        <input type="email" id="reply-email-${parentId}" class="icomment-input" placeholder="Email" required>
-        <textarea id="reply-content-${parentId}" class="icomment-textarea" placeholder="Your reply..." required></textarea>
+        <input type="text" id="reply-nickname-${parentId}" class="icomment-input" placeholder="Nickname" maxlength="${MAX_NICKNAME_LENGTH}" required>
+        <input type="email" id="reply-email-${parentId}" class="icomment-input" placeholder="Email (optional)" maxlength="${MAX_EMAIL_LENGTH}">
+        <textarea id="reply-content-${parentId}" class="icomment-textarea" placeholder="Your reply..." maxlength="${MAX_CONTENT_LENGTH}" required></textarea>
         <button class="icomment-button" onclick="submitReply(${parentId})">Submit Reply</button>
         <span class="icomment-cancel-btn" onclick="cancelReply(${parentId})">Cancel</span>
       </div>
@@ -99,8 +134,7 @@
     const email = document.getElementById(`reply-email-${parentId}`).value.trim();
     const content = document.getElementById(`reply-content-${parentId}`).value.trim();
 
-    if (!nickname || !email || !content) {
-      alert('Please fill in all fields');
+    if (!validateInput(nickname, email, content)) {
       return;
     }
 
@@ -151,9 +185,9 @@
       <div class="icomment-container">
         <div class="icomment-form">
           <h3>Leave a Comment</h3>
-          <input type="text" id="icomment-nickname" class="icomment-input" placeholder="Nickname" required>
-          <input type="email" id="icomment-email" class="icomment-input" placeholder="Email" required>
-          <textarea id="icomment-content" class="icomment-textarea" placeholder="Your comment..." required></textarea>
+          <input type="text" id="icomment-nickname" class="icomment-input" placeholder="Nickname" maxlength="${MAX_NICKNAME_LENGTH}" required>
+          <input type="email" id="icomment-email" class="icomment-input" placeholder="Email (optional)" maxlength="${MAX_EMAIL_LENGTH}">
+          <textarea id="icomment-content" class="icomment-textarea" placeholder="Your comment..." maxlength="${MAX_CONTENT_LENGTH}" required></textarea>
           <button class="icomment-button" id="icomment-submit">Submit</button>
         </div>
         <div id="icomment-list" class="icomment-list"></div>
@@ -165,8 +199,7 @@
       const email = document.getElementById('icomment-email').value.trim();
       const content = document.getElementById('icomment-content').value.trim();
 
-      if (!nickname || !email || !content) {
-        alert('Please fill in all fields');
+      if (!validateInput(nickname, email, content)) {
         return;
       }
 

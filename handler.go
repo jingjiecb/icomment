@@ -61,8 +61,15 @@ func (s *Server) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if comment.ArticleURL == "" || comment.Nickname == "" || comment.Email == "" || comment.Content == "" {
+	// Validate required fields
+	if comment.ArticleURL == "" || comment.Nickname == "" || comment.Content == "" {
 		s.jsonError(w, "Missing required fields", http.StatusBadRequest)
+		return
+	}
+
+	// Validate field lengths
+	if len(comment.Nickname) > 50 || len(comment.Email) > 100 || len(comment.Content) > 2000 {
+		s.jsonError(w, "Field length exceeds maximum allowed", http.StatusBadRequest)
 		return
 	}
 
@@ -94,7 +101,6 @@ func (s *Server) AdminPage(w http.ResponseWriter, r *http.Request) {
 		"TotalPages": (total + filter.PageSize - 1) / filter.PageSize,
 		"Status":     filter.Status,
 		"ArticleURL": filter.ArticleURL,
-		"Email":      filter.Email,
 	}
 	s.tpl.Execute(w, data)
 }
@@ -133,7 +139,6 @@ func (s *Server) parseFilter(r *http.Request) dao.CommentFilter {
 	return dao.CommentFilter{
 		Status:     status,
 		ArticleURL: r.URL.Query().Get("article_url"),
-		Email:      r.URL.Query().Get("email"),
 		Page:       page,
 		PageSize:   10,
 	}

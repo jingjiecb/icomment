@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS comments (
 	article_url TEXT NOT NULL,
 	parent_id INTEGER,
 	nickname TEXT NOT NULL,
-	email TEXT NOT NULL,
+	email TEXT,
 	content TEXT NOT NULL,
 	status TEXT DEFAULT 'pending',
 	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
