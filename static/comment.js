@@ -3,19 +3,86 @@
   const ARTICLE_URL = window.location.href.split('#')[0].split('?')[0];
 
   const styles = `
-    .icomment-container { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; width: 100%; }
-    .icomment-form { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 4px; }
-    .icomment-input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
-    .icomment-textarea { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 3px; min-height: 100px; box-sizing: border-box; }
-    .icomment-button { padding: 10px 20px; background: #333; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    .icomment-container { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      width: 100%; 
+      color: #333;
+    }
+    .icomment-form { 
+      margin-bottom: 30px; 
+      padding: 20px; 
+      border: 1px solid #e0e0e0; 
+      border-radius: 4px; 
+      background: #fff;
+    }
+    .icomment-input, .icomment-textarea { 
+      width: 100%; 
+      padding: 8px; 
+      margin-bottom: 10px; 
+      border: 1px solid #ddd; 
+      border-radius: 3px; 
+      box-sizing: border-box;
+      background: #fff;
+      color: #333;
+    }
+    .icomment-textarea { min-height: 100px; }
+    .icomment-button { 
+      padding: 10px 20px; 
+      background: #333; 
+      color: white; 
+      border: none; 
+      border-radius: 3px; 
+      cursor: pointer; 
+    }
     .icomment-button:hover { background: #555; }
     .icomment-list { list-style: none; padding: 0; }
-    .icomment-item { margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; }
-    .icomment-reply { margin-left: 40px; margin-top: 10px; padding: 10px; background: #f9f9f9; border-left: 3px solid #ddd; }
+    .icomment-item { 
+      margin-bottom: 20px; 
+      padding: 15px; 
+      border: 1px solid #e0e0e0; 
+      border-radius: 4px; 
+      background: #fff;
+    }
+    .icomment-reply { 
+      margin-left: 40px; 
+      margin-top: 10px; 
+      padding: 10px; 
+      background: #f9f9f9; 
+      border-left: 3px solid #ddd; 
+    }
     .icomment-meta { font-size: 0.9em; color: #666; margin-bottom: 8px; }
     .icomment-content { margin: 10px 0; line-height: 1.6; }
     .icomment-reply-btn { font-size: 0.85em; color: #666; cursor: pointer; text-decoration: underline; }
     .icomment-cancel-btn { margin-left: 10px; font-size: 0.85em; color: #999; cursor: pointer; text-decoration: underline; }
+
+    @media (prefers-color-scheme: dark) {
+      .icomment-container { color: #e0e0e0; }
+      .icomment-form { 
+        border-color: #444; 
+        background: #1a1a1a;
+      }
+      .icomment-input, .icomment-textarea { 
+        border-color: #444; 
+        background: #2a2a2a;
+        color: #e0e0e0;
+      }
+      .icomment-button { 
+        background: #555; 
+        color: #fff; 
+      }
+      .icomment-button:hover { background: #666; }
+      .icomment-item { 
+        border-color: #444; 
+        background: #1a1a1a;
+      }
+      .icomment-reply { 
+        background: #2a2a2a; 
+        border-left-color: #555; 
+      }
+      .icomment-meta { color: #999; }
+      .icomment-reply-btn { color: #999; }
+      .icomment-cancel-btn { color: #777; }
+    }
   `;
 
   const styleSheet = document.createElement('style');
