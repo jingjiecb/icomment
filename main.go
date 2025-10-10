@@ -106,23 +106,10 @@ func main() {
 	publicAddr := ":" + cfg.Port
 	adminAddr := "127.0.0.1:" + cfg.AdminPort
 
-	fmt.Printf("🚀 iComment server starting...\n")
+	fmt.Printf("🚀 iComment server started\n")
 	fmt.Printf("   Database: %s\n", cfg.DBPath)
-	fmt.Printf("\n")
-	fmt.Printf("📡 Public API (port %s):\n", cfg.Port)
-	fmt.Printf("   GET  /api/comments?article_url=xxx - List comments\n")
-	fmt.Printf("   POST /api/comments                 - Create comment\n")
-	fmt.Printf("   GET  /static/comment.js            - Frontend script\n")
-	fmt.Printf("\n")
-	fmt.Printf("🔧 Admin API (port %s, localhost only):\n", cfg.AdminPort)
-	fmt.Printf("   GET    /                           - Admin UI\n")
-	fmt.Printf("   GET    /comments                   - List/filter comments\n")
-	fmt.Printf("   DELETE /comments/:id               - Delete comment\n")
-	fmt.Printf("   PATCH  /comments/:id/approve       - Approve comment\n")
-	fmt.Printf("\n")
-	fmt.Printf("🌐 Access URLs:\n")
-	fmt.Printf("   Public: http://0.0.0.0%s\n", publicAddr)
-	fmt.Printf("   Admin:  http://%s\n", adminAddr)
+	fmt.Printf("   Public:   http://0.0.0.0%s\n", publicAddr)
+	fmt.Printf("   Admin:    http://%s\n", adminAddr)
 	fmt.Println()
 
 	// Start admin server in goroutine
