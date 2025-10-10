@@ -385,11 +385,11 @@
             <p>Add this code to your blog posts where you want comments to appear:</p>
             <div class="embed-code">
                 <code>&lt;div id="icomment"&gt;&lt;/div&gt;
-&lt;script&gt;
-  window.COMMENT_API_BASE = 'http://your-domain.com:8080';
-&lt;/script&gt;
-&lt;script src="http://your-domain.com:8080/static/comment.js"&gt;&lt;/script&gt;</code>
+&lt;script src="http://your-domain.com:8080/static/comment.js" data-api="http://your-domain.com:8080"&gt;&lt;/script&gt;</code>
             </div>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                Replace <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">your-domain.com:8080</code> with your iComment server's domain and port.
+            </p>
         </div>
     </div>
 </body>

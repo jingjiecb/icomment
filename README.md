@@ -40,11 +40,10 @@ go build -o icomment .
 
 ```html
 <div id="icomment"></div>
-<script>
-  window.COMMENT_API_BASE = 'http://your-domain.com:8080';
-</script>
-<script src="http://your-domain.com:8080/static/comment.js"></script>
+<script src="http://your-domain.com:8080/static/comment.js" data-api="http://your-domain.com:8080"></script>
 ```
+
+Replace `your-domain.com:8080` with your iComment server's domain and port.
 
 ## 访问地址
 
