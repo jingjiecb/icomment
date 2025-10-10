@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Comment Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 100px;
+            font-family: inherit;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #555;
+        }
+
+        .delete-btn {
+            background: #d32f2f;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .delete-btn:hover {
+            background: #b71c1c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .meta {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .content {
+            margin: 5px 0;
+            line-height: 1.5;
+            max-width: 300px;
+        }
+
+        .content-preview {
+            max-height: 3em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            cursor: pointer;
+        }
+
+        .content-full {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .expand-btn {
+            color: #2196F3;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-decoration: underline;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .reply-indicator {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .embed-code {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .embed-code code {
+            display: block;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+    <script>
+        function approveComment(id) {
+            fetch(`/comments/${id}/approve`, {
+                method: 'PATCH'
+            })
+                .then(res => res.json())
+                .then(() => window.location.reload())
+                .catch(err => alert('Failed to approve comment'));
+        }
+
+        function deleteComment(id) {
+            if (!confirm('Delete this comment?')) return;
+
+            fetch(`/comments/${id}`, {
+                method: 'DELETE'
+            })
+                .then(() => window.location.reload())
+                .catch(err => alert('Failed to delete comment'));
+        }
+
+        function toggleContent(id) {
+            const preview = document.getElementById(`preview-${id}`);
+            const full = document.getElementById(`full-${id}`);
+            const toggle = document.getElementById(`toggle-${id}`);
+
+            if (full.style.display === 'none') {
+                preview.style.display = 'none';
+                full.style.display = 'block';
+                toggle.textContent = 'Show less';
+            } else {
+                preview.style.display = 'block';
+                full.style.display = 'none';
+                toggle.textContent = 'Show more';
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Comment Admin</h1>
+
+        <div class="section">
+            <h2>Filter Comments</h2>
+            <form method="GET" action="/" id="filterForm" style="margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 0.9em;">Article URL Prefix:</label>
+                        <input type="text" name="article_url" value="{{.ArticleURL}}" placeholder="https://example.com/post"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 0.9em;">Email (exact
+                            match):</label>
+                        <input type="email" name="email" value="{{.Email}}" placeholder="user@example.com"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div style="min-width: 150px;">
+                        <label style="display: block; margin-bottom: 5px; font-size: 0.9em;">Status:</label>
+                        <select name="status" onchange="this.form.submit()"
+                            style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                            <option value="all" {{if eq .Status "all" }}selected{{end}}>All</option>
+                            <option value="pending" {{if eq .Status "pending" }}selected{{end}}>Pending</option>
+                            <option value="approved" {{if eq .Status "approved" }}selected{{end}}>Approved</option>
+                        </select>
+                    </div>
+                    <button type="submit" style="padding: 8px 20px; height: 36px;">Filter</button>
+                    <a href="/"
+                        style="padding: 8px 20px; height: 36px; background: #999; color: white; text-decoration: none; border-radius: 4px; display: inline-flex; align-items: center;">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>Comments ({{.Total}} total, page {{.Page}}/{{.TotalPages}})</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Article URL</th>
+                        <th>Author</th>
+                        <th>Content</th>
+                        <th>Time (UTC)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Comments}}
+                    <tr {{if eq .Status "pending" }}style="background: #fffbf0;" {{end}}>
+                        <td>{{.ID}}</td>
+                        <td>
+                            {{if eq .Status "approved"}}
+                            <span style="color: #4caf50; font-weight: 500;">✓ Approved</span>
+                            {{else}}
+                            <span style="color: #ff9800; font-weight: 500;">⏳ Pending</span>
+                            {{end}}
+                        </td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{if .ParentID}}<span class="reply-indicator">↳ Reply to #{{.ParentID}}</span><br>{{end}}
+                            <a href="{{.ArticleURL}}" target="_blank" rel="noopener noreferrer"
+                                style="color: #2196F3; text-decoration: none;">{{.ArticleURL}}</a>
+                        </td>
+                        <td>
+                            <strong>{{.Nickname}}</strong><br>
+                            <span class="meta">{{.Email}}</span>
+                        </td>
+                        <td class="content">
+                            <div class="content-preview" id="preview-{{.ID}}" onclick="toggleContent({{.ID}})">
+                                {{.Content}}</div>
+                            <div class="content-full" id="full-{{.ID}}" style="display: none;">{{.Content}}</div>
+                            <span class="expand-btn" id="toggle-{{.ID}}" onclick="toggleContent({{.ID}})">Show
+                                more</span>
+                        </td>
+                        <td class="meta">{{.CreatedAt}}</td>
+                        <td>
+                            {{if eq .Status "pending"}}
+                            <button onclick="approveComment({{.ID}})"
+                                style="padding: 6px 12px; font-size: 13px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">Approve</button>
+                            {{end}}
+                            <button onclick="deleteComment({{.ID}})" class="delete-btn">Delete</button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+
+            {{if gt .TotalPages 1}}
+            <div style="margin-top: 20px; display: flex; gap: 10px; align-items: center; justify-content: center;">
+                {{if gt .Page 1}}
+                <a href="?page={{sub .Page 1}}&status={{.Status}}{{if .ArticleURL}}&article_url={{.ArticleURL}}{{end}}{{if .Email}}&email={{.Email}}{{end}}"
+                    style="padding: 8px 16px; background: #333; color: white; text-decoration: none; border-radius: 4px;">←
+                    Prev</a>
+                {{end}}
+
+                <span style="color: #666;">Page {{.Page}} of {{.TotalPages}}</span>
+
+                {{if lt .Page .TotalPages}}
+                <a href="?page={{add .Page 1}}&status={{.Status}}{{if .ArticleURL}}&article_url={{.ArticleURL}}{{end}}{{if .Email}}&email={{.Email}}{{end}}"
+                    style="padding: 8px 16px; background: #333; color: white; text-decoration: none; border-radius: 4px;">Next
+                    →</a>
+                {{end}}
+            </div>
+            {{end}}
+        </div>
+
+        <div class="section">
+            <h2>Embed Code</h2>
+            <p>Add this code to your blog posts where you want comments to appear:</p>
+            <div class="embed-code">
+                <code>&lt;div id="icomment"&gt;&lt;/div&gt;
+&lt;script&gt;
+  window.COMMENT_API_BASE = 'http://your-domain.com:8080';
+&lt;/script&gt;
+&lt;script src="http://your-domain.com:8080/static/comment.js"&gt;&lt;/script&gt;</code>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
