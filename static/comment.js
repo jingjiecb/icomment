@@ -115,13 +115,21 @@
         content
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) {
+        return res.json().then(err => Promise.reject(err));
+      }
+      return res.json();
+    })
     .then(data => {
       alert('Reply submitted successfully! It will appear after approval.');
       loadComments();
       cancelReply(parentId);
     })
-    .catch(err => alert('Error submitting reply: ' + err));
+    .catch(err => {
+      const message = err.error || 'Failed to submit reply';
+      alert(message + '\n\nPlease try refreshing the page and submitting again.');
+    });
   };
 
   window.cancelReply = function(parentId) {
@@ -172,7 +180,12 @@
           content
         })
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => Promise.reject(err));
+        }
+        return res.json();
+      })
       .then(data => {
         document.getElementById('icomment-nickname').value = '';
         document.getElementById('icomment-email').value = '';
@@ -180,7 +193,10 @@
         alert('Comment submitted successfully! It will appear after approval.');
         loadComments();
       })
-      .catch(err => alert('Error submitting comment: ' + err));
+      .catch(err => {
+        const message = err.error || 'Failed to submit comment';
+        alert(message + '\n\nPlease try again or refresh the page.');
+      });
     });
 
     loadComments();

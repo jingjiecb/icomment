@@ -15,6 +15,18 @@ func NewCommentDao(db *sql.DB) *CommentDao {
 }
 
 func (dao *CommentDao) CreateComment(comment *model.Comment) error {
+	// Validate parent_id exists if provided
+	if comment.ParentID != nil {
+		var exists bool
+		err := dao.db.QueryRow("SELECT EXISTS(SELECT 1 FROM comments WHERE id = ?)", *comment.ParentID).Scan(&exists)
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return sql.ErrNoRows // Will be handled as bad request
+		}
+	}
+
 	_, err := dao.db.Exec(
 		"INSERT INTO comments(article_url, parent_id, nickname, email, content) VALUES(?, ?, ?, ?, ?)",
 		comment.ArticleURL, comment.ParentID, comment.Nickname, comment.Email, comment.Content,

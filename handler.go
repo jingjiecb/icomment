@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -66,7 +67,11 @@ func (s *Server) CreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.dao.CreateComment(&comment); err != nil {
-		s.jsonError(w, "Failed to create comment", http.StatusInternalServerError)
+		if err == sql.ErrNoRows {
+			s.jsonError(w, "Parent comment not found", http.StatusBadRequest)
+		} else {
+			s.jsonError(w, "Failed to create comment", http.StatusInternalServerError)
+		}
 		return
 	}
 
