@@ -28,6 +28,15 @@
       color: #333;
     }
     .icomment-textarea { min-height: 100px; }
+    .icomment-counter { 
+      font-size: 0.85em; 
+      color: #999; 
+      text-align: right; 
+      margin-top: -8px; 
+      margin-bottom: 10px; 
+    }
+    .icomment-counter.warning { color: #ff9800; }
+    .icomment-counter.error { color: #f44336; }
     .icomment-button { 
       padding: 10px 20px; 
       background: #333; 
@@ -90,6 +99,9 @@
       .icomment-meta { color: #999; }
       .icomment-reply-btn { color: #999; }
       .icomment-cancel-btn { color: #777; }
+      .icomment-counter { color: #777; }
+      .icomment-counter.warning { color: #ff9800; }
+      .icomment-counter.error { color: #f44336; }
     }
   `;
 
@@ -191,6 +203,20 @@
     });
   }
 
+  function updateCounter(textareaId, counterId) {
+    const textarea = document.getElementById(textareaId);
+    const counter = document.getElementById(counterId);
+    const length = textarea.value.length;
+    counter.textContent = `${length}/${MAX_CONTENT_LENGTH}`;
+    
+    counter.classList.remove('warning', 'error');
+    if (length > MAX_CONTENT_LENGTH) {
+      counter.classList.add('error');
+    } else if (length > MAX_CONTENT_LENGTH * 0.9) {
+      counter.classList.add('warning');
+    }
+  }
+
   function showReplyForm(parentId) {
     const container = document.getElementById(`reply-form-${parentId}`);
     container.innerHTML = `
@@ -198,10 +224,15 @@
         <input type="text" id="reply-nickname-${parentId}" class="icomment-input" placeholder="Nickname" maxlength="${MAX_NICKNAME_LENGTH}" required>
         <input type="email" id="reply-email-${parentId}" class="icomment-input" placeholder="Email (optional)" maxlength="${MAX_EMAIL_LENGTH}">
         <textarea id="reply-content-${parentId}" class="icomment-textarea" placeholder="Your reply..." maxlength="${MAX_CONTENT_LENGTH}" required></textarea>
+        <div class="icomment-counter" id="reply-counter-${parentId}">0/${MAX_CONTENT_LENGTH}</div>
         <button class="icomment-button" onclick="submitReply(${parentId})">Submit Reply</button>
         <span class="icomment-cancel-btn" onclick="cancelReply(${parentId})">Cancel</span>
       </div>
     `;
+    
+    // Add event listener for counter
+    const textarea = document.getElementById(`reply-content-${parentId}`);
+    textarea.addEventListener('input', () => updateCounter(`reply-content-${parentId}`, `reply-counter-${parentId}`));
   }
 
   window.submitReply = function(parentId) {
@@ -263,6 +294,7 @@
           <input type="text" id="icomment-nickname" class="icomment-input" placeholder="Nickname" maxlength="${MAX_NICKNAME_LENGTH}" required>
           <input type="email" id="icomment-email" class="icomment-input" placeholder="Email (optional)" maxlength="${MAX_EMAIL_LENGTH}">
           <textarea id="icomment-content" class="icomment-textarea" placeholder="Your comment..." maxlength="${MAX_CONTENT_LENGTH}" required></textarea>
+          <div class="icomment-counter" id="icomment-counter">0/${MAX_CONTENT_LENGTH}</div>
           <div class="icomment-form-footer">
             <button class="icomment-button" id="icomment-submit">Submit</button>
             <div class="icomment-powered">Powered by <a href="https://github.com/jingjiecb/icomment" target="_blank" rel="noopener noreferrer">iComment</a></div>
@@ -271,6 +303,11 @@
         <div id="icomment-list" class="icomment-list"></div>
       </div>
     `;
+
+    // Add event listener for main comment counter
+    document.getElementById('icomment-content').addEventListener('input', () => {
+      updateCounter('icomment-content', 'icomment-counter');
+    });
 
     document.getElementById('icomment-submit').addEventListener('click', () => {
       const nickname = document.getElementById('icomment-nickname').value.trim();
@@ -301,6 +338,7 @@
         document.getElementById('icomment-nickname').value = '';
         document.getElementById('icomment-email').value = '';
         document.getElementById('icomment-content').value = '';
+        document.getElementById('icomment-counter').textContent = `0/${MAX_CONTENT_LENGTH}`;
         alert('Comment submitted successfully! It will appear after approval.');
         loadComments();
       })
