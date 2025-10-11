@@ -10,8 +10,10 @@
 - 🔒 管理端独立端口，仅限 localhost 访问
 - ✅ 评论审核机制，保护网站安全
 - 📝 支持一层回复
-- 🎨 纯净的前端组件，自适应父容器
+- 🎨 纯净的前端组件，自适应父容器，支持暗黑模式
 - 🔌 RESTful API 设计
+- 🔐 隐私保护：Email 地址不对外暴露
+- ⚡ 静态资源缓存优化
 
 ## 快速开始
 
@@ -74,25 +76,31 @@ Content-Type: application/json
 {
   "article_url": "https://example.com/post",
   "parent_id": 123,  // 可选，回复评论的 ID
-  "nickname": "张三",
-  "email": "user@example.com",
-  "content": "评论内容"
+  "nickname": "张三",  // 必填，最多 50 字符
+  "email": "user@example.com",  // 可选，最多 100 字符
+  "content": "评论内容"  // 必填，最多 2000 字符
 }
 ```
 
 评论提交后状态为 `pending`，需要管理员审核后才会显示。
 
+**响应示例：**
+```json
+{
+  "message": "Comment created, pending approval"
+}
+```
+
 ### 管理 API
 
 #### 获取评论列表（带过滤）
 ```http
-GET /comments?status=pending&article_url=xxx&email=xxx&page=1
+GET /comments?status=pending&article_url=xxx&page=1
 ```
 
 参数：
 - `status`: `all` | `pending` | `approved` (默认: `pending`)
 - `article_url`: 文章 URL 前缀过滤
-- `email`: 邮箱精确匹配
 - `page`: 页码 (默认: 1, 每页 10 条)
 
 #### 批准评论
@@ -109,11 +117,11 @@ DELETE /comments/:id
 
 访问 `http://localhost:8081/` 可以：
 
-- 📋 查看和过滤评论（按状态、文章、邮箱）
-- ✅ 批准待审核评论
-- 🗑️ 删除评论
+- 📋 查看和过滤评论（按状态、文章 URL）
+- ✅ 批准待审核评论（一键操作）
+- 🗑️ 删除评论（级联删除回复）
 - 📄 分页浏览（每页 10 条）
-- 🔍 展开/收起评论内容
+- 🔍 展开行查看完整详情
 - 🔗 点击文章链接直接访问
 - 📊 实时统计评论数量
 
@@ -125,7 +133,7 @@ CREATE TABLE comments (
     article_url TEXT NOT NULL,
     parent_id INTEGER,
     nickname TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT,  -- 可选
     content TEXT NOT NULL,
     status TEXT DEFAULT 'pending',  -- 'pending' 或 'approved'
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

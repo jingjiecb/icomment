@@ -4,6 +4,10 @@ icomment
 # Database
 *.db
 
+# Temp
+tmp/
+test.html
+
 # IDE
 .idea/
 .vscode/
