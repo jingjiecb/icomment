@@ -3,9 +3,10 @@ package main
 import "flag"
 
 type Config struct {
-	DBPath    string
-	Port      string
-	AdminPort string
+	DBPath        string
+	Port          string
+	AdminPort     string
+	BarkDeviceKey string
 }
 
 func LoadConfig() *Config {
@@ -13,6 +14,7 @@ func LoadConfig() *Config {
 	flag.StringVar(&cfg.DBPath, "db", "./comments.db", "Path to SQLite database file")
 	flag.StringVar(&cfg.Port, "port", "7001", "Public API port")
 	flag.StringVar(&cfg.AdminPort, "admin-port", "7002", "Admin panel port")
+	flag.StringVar(&cfg.BarkDeviceKey, "bark", "", "Bark device key for notifications (optional)")
 	flag.Parse()
 	return cfg
 }

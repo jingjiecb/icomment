@@ -13,12 +13,17 @@ import (
 )
 
 type Server struct {
-	dao *dao.CommentDao
-	tpl *template.Template
+	dao          *dao.CommentDao
+	tpl          *template.Template
+	barkNotifier *BarkNotifier
 }
 
-func NewServer(d *dao.CommentDao, tpl *template.Template) *Server {
-	return &Server{dao: d, tpl: tpl}
+func NewServer(d *dao.CommentDao, tpl *template.Template, notifier *BarkNotifier) *Server {
+	return &Server{
+		dao:          d,
+		tpl:          tpl,
+		barkNotifier: notifier,
+	}
 }
 
 // Helper functions
@@ -86,6 +91,16 @@ func (s *Server) CreateComment(w http.ResponseWriter, r *http.Request) {
 			s.jsonError(w, "Failed to create comment", http.StatusInternalServerError)
 		}
 		return
+	}
+
+	// Send Bark notification (non-blocking)
+	if s.barkNotifier != nil {
+		go func() {
+			if err := s.barkNotifier.SendNewCommentNotification(&comment); err != nil {
+				// Log error but don't fail the request
+				println("Failed to send Bark notification:", err.Error())
+			}
+		}()
 	}
 
 	s.jsonResponse(w, map[string]string{"message": "Comment created, pending approval"}, http.StatusCreated)

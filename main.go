@@ -39,7 +39,13 @@ func main() {
 		log.Fatal("Failed to parse template:", err)
 	}
 
-	server := NewServer(commentDao, tpl)
+	// Initialize Bark notifier if configured
+	barkNotifier := NewBarkNotifier(cfg.BarkDeviceKey)
+	if barkNotifier != nil {
+		fmt.Printf("   Bark:     Enabled\n")
+	}
+
+	server := NewServer(commentDao, tpl, barkNotifier)
 
 	// Public API server
 	publicMux := http.NewServeMux()
@@ -112,7 +118,6 @@ func main() {
 	fmt.Printf("   Database: %s\n", cfg.DBPath)
 	fmt.Printf("   Public:   http://0.0.0.0%s\n", publicAddr)
 	fmt.Printf("   Admin:    http://%s\n", adminAddr)
-	fmt.Println()
 
 	// Start admin server in goroutine
 	go func() {

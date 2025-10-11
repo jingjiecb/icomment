@@ -14,6 +14,7 @@
 - 🔌 RESTful API 设计
 - 🔐 隐私保护：Email 地址不对外暴露
 - ⚡ 静态资源缓存优化
+- 🔔 Bark 推送通知（可选）
 
 ## 快速开始
 
@@ -352,7 +353,47 @@ Usage of ./icomment:
         Public API port (default "7001")
   -admin-port string
         Admin panel port (default "7002")
+  -bark string
+        Bark device key for notifications (optional)
 ```
+
+### Bark 推送通知
+
+iComment 支持通过 [Bark](https://github.com/Finb/Bark) 接收新评论通知。
+
+**启用方式：**
+
+```bash
+# 启动时添加 -bark 参数，填入你的 Bark Device Key
+./icomment -bark "your_bark_device_key"
+```
+
+**获取 Bark Device Key：**
+
+1. 在 iOS App Store 下载 Bark 应用
+2. 打开应用，复制显示的 Device Key（格式如：`aBcDeFgHiJkLmN`）
+3. 将 Device Key 作为 `-bark` 参数传入
+
+**通知内容：**
+
+- 新评论时推送标题："新评论"
+- 新回复时推送标题："新回复"
+- 通知内容包含：昵称 + 评论内容预览（前 100 字符）
+- 点击通知可直接跳转到文章页面
+- 所有通知归类到 "iComment" 分组
+
+**示例：**
+
+```bash
+# 完整配置示例
+./icomment \
+  -db /var/lib/icomment/comments.db \
+  -port 7001 \
+  -admin-port 7002 \
+  -bark "aBcDeFgHiJkLmN"
+```
+
+启动后，每当有新评论提交时，你的 iPhone 会立即收到推送通知。
 
 ## License
 
