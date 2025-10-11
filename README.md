@@ -184,22 +184,129 @@ CREATE INDEX idx_email ON comments(email);
 
 ### 反向代理配置 (Nginx)
 
+#### 基础配置
+
 ```nginx
 # 公开 API
 location /api/comments {
     proxy_pass http://localhost:7001;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 }
 
 location /static/comment.js {
     proxy_pass http://localhost:7001;
+    proxy_set_header Host $host;
 }
+```
 
-# 管理端 (可选，如需远程访问)
+#### 管理端远程访问配置
+
+默认情况下，管理端只能通过 `localhost:7002` 访问。如果需要远程访问管理界面，可以通过 Nginx 反向代理并添加安全认证。
+
+**方案一：IP 白名单**
+
+```nginx
 location /admin/ {
     proxy_pass http://localhost:7002/;
-    # 添加 IP 白名单或 HTTP Basic Auth
-    allow 192.168.1.0/24;
-    deny all;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    
+    # 只允许特定 IP 访问
+    allow 192.168.1.0/24;  # 允许内网
+    allow 203.0.113.10;    # 允许特定公网 IP
+    deny all;              # 拒绝其他所有 IP
+}
+```
+
+**方案二：HTTP Basic Auth（推荐）**
+
+1. 创建密码文件：
+
+```bash
+# 安装 htpasswd 工具（如果没有）
+# Ubuntu/Debian
+sudo apt-get install apache2-utils
+
+# CentOS/RHEL
+sudo yum install httpd-tools
+
+# macOS (通常已预装)
+# 如果没有：brew install httpd
+
+# 创建密码文件和第一个用户
+sudo htpasswd -c /etc/nginx/.htpasswd admin
+
+# 添加更多用户（不要使用 -c 参数，会覆盖文件）
+sudo htpasswd /etc/nginx/.htpasswd another_user
+```
+
+2. 配置 Nginx：
+
+```nginx
+location /admin/ {
+    proxy_pass http://localhost:7002/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    
+    # 启用 HTTP Basic Auth
+    auth_basic "iComment Admin Area";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+}
+```
+
+3. 重载 Nginx 配置：
+
+```bash
+# 测试配置文件语法
+sudo nginx -t
+
+# 重载配置
+sudo nginx -s reload
+```
+
+#### HTTPS 配置（强烈推荐）
+
+如果管理端需要远程访问，强烈建议启用 HTTPS：
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+    
+    ssl_certificate /path/to/cert.pem;
+    ssl_certificate_key /path/to/key.pem;
+    
+    # 公开 API（无需认证）
+    location /api/comments {
+        proxy_pass http://localhost:7001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    
+    location /static/comment.js {
+        proxy_pass http://localhost:7001;
+        proxy_set_header Host $host;
+    }
+    
+    # 管理端（需要认证）
+    location /admin/ {
+        proxy_pass http://localhost:7002/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        
+        auth_basic "iComment Admin Area";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+    }
+}
+
+# HTTP 重定向到 HTTPS
+server {
+    listen 80;
+    server_name your-domain.com;
+    return 301 https://$server_name$request_uri;
 }
 ```
 
