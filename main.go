@@ -72,6 +72,8 @@ func main() {
 		}
 		if strings.HasSuffix(r.URL.Path, ".js") {
 			w.Header().Set("Content-Type", "application/javascript")
+			// Cache for 1 hour (3600 seconds)
+			w.Header().Set("Cache-Control", "public, max-age=3600")
 		}
 		w.Write(content)
 	})
