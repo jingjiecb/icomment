@@ -28,8 +28,8 @@ go build -o icomment .
 ```bash
 # 使用默认配置
 # 数据库：./comments.db
-# 公开端口：8080
-# 管理端口：8081 (localhost only)
+# 公开端口：7001
+# 管理端口：7002 (localhost only)
 ./icomment
 
 # 自定义配置
@@ -42,20 +42,20 @@ go build -o icomment .
 
 ```html
 <div id="icomment"></div>
-<script src="http://your-domain.com:8080/static/comment.js" data-api="http://your-domain.com:8080"></script>
+<script src="http://your-domain.com:7001/static/comment.js" data-api="http://your-domain.com:7001"></script>
 ```
 
-Replace `your-domain.com:8080` with your iComment server's domain and port.
+Replace `your-domain.com:7001` with your iComment server's domain and port.
 
 ## 访问地址
 
-### 公开服务 (端口 8080)
-- **API 端点**: `http://0.0.0.0:8080/api/comments`
-- **前端脚本**: `http://0.0.0.0:8080/static/comment.js`
+### 公开服务 (端口 7001)
+- **API 端点**: `http://0.0.0.0:7001/api/comments`
+- **前端脚本**: `http://0.0.0.0:7001/static/comment.js`
 
-### 管理服务 (端口 8081, localhost only)
-- **管理界面**: `http://localhost:8081/`
-- **API 端点**: `http://localhost:8081/comments`
+### 管理服务 (端口 7002, localhost only)
+- **管理界面**: `http://localhost:7002/`
+- **API 端点**: `http://localhost:7002/comments`
 
 ## API 文档
 
@@ -115,7 +115,7 @@ DELETE /comments/:id
 
 ## 管理功能
 
-访问 `http://localhost:8081/` 可以：
+访问 `http://localhost:7002/` 可以：
 
 - 📋 查看和过滤评论（按状态、文章 URL）
 - ✅ 批准待审核评论（一键操作）
@@ -187,16 +187,16 @@ CREATE INDEX idx_email ON comments(email);
 ```nginx
 # 公开 API
 location /api/comments {
-    proxy_pass http://localhost:8080;
+    proxy_pass http://localhost:7001;
 }
 
 location /static/comment.js {
-    proxy_pass http://localhost:8080;
+    proxy_pass http://localhost:7001;
 }
 
 # 管理端 (可选，如需远程访问)
 location /admin/ {
-    proxy_pass http://localhost:8081/;
+    proxy_pass http://localhost:7002/;
     # 添加 IP 白名单或 HTTP Basic Auth
     allow 192.168.1.0/24;
     deny all;
@@ -242,9 +242,9 @@ Usage of ./icomment:
   -db string
         Path to SQLite database file (default "./comments.db")
   -port string
-        Public API port (default "8080")
+        Public API port (default "7001")
   -admin-port string
-        Admin panel port (default "8081")
+        Admin panel port (default "7002")
 ```
 
 ## License

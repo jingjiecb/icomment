@@ -1,7 +1,7 @@
 (function() {
   // Get API base from script tag data attribute or window variable
   const scriptTag = document.currentScript;
-  const API_BASE = (scriptTag && scriptTag.getAttribute('data-api')) || window.COMMENT_API_BASE || 'http://localhost:8080';
+  const API_BASE = (scriptTag && scriptTag.getAttribute('data-api')) || window.COMMENT_API_BASE || 'http://localhost:7001';
   const ARTICLE_URL = window.location.href.split('#')[0].split('?')[0];
 
   const styles = `
