@@ -1,4 +1,4 @@
-(function() {
+(function () {
   // Get API base from script tag data attribute or window variable
   const scriptTag = document.currentScript;
   const API_BASE = (scriptTag && scriptTag.getAttribute('data-api')) || window.COMMENT_API_BASE || 'http://localhost:7001';
@@ -27,7 +27,7 @@
       background: #fff;
       color: #333;
     }
-    .icomment-textarea { min-height: 100px; }
+    .icomment-textarea { min-height: 100px; resize: vertical; }
     .icomment-counter { 
       font-size: 0.85em; 
       color: #999; 
@@ -125,22 +125,22 @@
       alert(`Nickname is required and must be less than ${MAX_NICKNAME_LENGTH} characters.`);
       return false;
     }
-    
+
     if (email && !validateEmail(email)) {
       alert('Please enter a valid email address.');
       return false;
     }
-    
+
     if (email && email.length > MAX_EMAIL_LENGTH) {
       alert(`Email must be less than ${MAX_EMAIL_LENGTH} characters.`);
       return false;
     }
-    
+
     if (!content || content.length > MAX_CONTENT_LENGTH) {
       alert(`Comment is required and must be less than ${MAX_CONTENT_LENGTH} characters.`);
       return false;
     }
-    
+
     return true;
   }
 
@@ -208,7 +208,7 @@
     const counter = document.getElementById(counterId);
     const length = textarea.value.length;
     counter.textContent = `${length}/${MAX_CONTENT_LENGTH}`;
-    
+
     counter.classList.remove('warning', 'error');
     if (length > MAX_CONTENT_LENGTH) {
       counter.classList.add('error');
@@ -229,13 +229,13 @@
         <span class="icomment-cancel-btn" onclick="cancelReply(${parentId})">Cancel</span>
       </div>
     `;
-    
+
     // Add event listener for counter
     const textarea = document.getElementById(`reply-content-${parentId}`);
     textarea.addEventListener('input', () => updateCounter(`reply-content-${parentId}`, `reply-counter-${parentId}`));
   }
 
-  window.submitReply = function(parentId) {
+  window.submitReply = function (parentId) {
     const nickname = document.getElementById(`reply-nickname-${parentId}`).value.trim();
     const email = document.getElementById(`reply-email-${parentId}`).value.trim();
     const content = document.getElementById(`reply-content-${parentId}`).value.trim();
@@ -255,24 +255,24 @@
         content
       })
     })
-    .then(res => {
-      if (!res.ok) {
-        return res.json().then(err => Promise.reject(err));
-      }
-      return res.json();
-    })
-    .then(data => {
-      alert('Reply submitted successfully! It will appear after approval.');
-      loadComments();
-      cancelReply(parentId);
-    })
-    .catch(err => {
-      const message = err.error || 'Failed to submit reply';
-      alert(message + '\n\nPlease try refreshing the page and submitting again.');
-    });
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => Promise.reject(err));
+        }
+        return res.json();
+      })
+      .then(data => {
+        alert('Reply submitted successfully! It will appear after approval.');
+        loadComments();
+        cancelReply(parentId);
+      })
+      .catch(err => {
+        const message = err.error || 'Failed to submit reply';
+        alert(message + '\n\nPlease try refreshing the page and submitting again.');
+      });
   };
 
-  window.cancelReply = function(parentId) {
+  window.cancelReply = function (parentId) {
     document.getElementById(`reply-form-${parentId}`).innerHTML = '';
   };
 
@@ -328,24 +328,24 @@
           content
         })
       })
-      .then(res => {
-        if (!res.ok) {
-          return res.json().then(err => Promise.reject(err));
-        }
-        return res.json();
-      })
-      .then(data => {
-        document.getElementById('icomment-nickname').value = '';
-        document.getElementById('icomment-email').value = '';
-        document.getElementById('icomment-content').value = '';
-        document.getElementById('icomment-counter').textContent = `0/${MAX_CONTENT_LENGTH}`;
-        alert('Comment submitted successfully! It will appear after approval.');
-        loadComments();
-      })
-      .catch(err => {
-        const message = err.error || 'Failed to submit comment';
-        alert(message + '\n\nPlease try again or refresh the page.');
-      });
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(err => Promise.reject(err));
+          }
+          return res.json();
+        })
+        .then(data => {
+          document.getElementById('icomment-nickname').value = '';
+          document.getElementById('icomment-email').value = '';
+          document.getElementById('icomment-content').value = '';
+          document.getElementById('icomment-counter').textContent = `0/${MAX_CONTENT_LENGTH}`;
+          alert('Comment submitted successfully! It will appear after approval.');
+          loadComments();
+        })
+        .catch(err => {
+          const message = err.error || 'Failed to submit comment';
+          alert(message + '\n\nPlease try again or refresh the page.');
+        });
     });
 
     loadComments();
