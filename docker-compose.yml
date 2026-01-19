@@ -1,9 +1,9 @@
 services:
   icomment:
     # Use the image built from the current directory, or pull from hub if you prefer
-    # image: your-dockerhub-username/icomment:latest
-    build: .
-    container_name: icomment
+    image: claws059/icomment:latest
+    # build: .
+    # container_name: icomment
     restart: unless-stopped
     ports:
       - "7001:7001"
@@ -12,7 +12,4 @@ services:
       - ./data:/data
     environment:
       # Optional: Override default configuration
-      # - ICOMMENT_DB=/data/comments.db
-      # - ICOMMENT_PORT=7001
-      # - ICOMMENT_ADMIN_PORT=7002
       # - ICOMMENT_BARK=your_bark_device_key

@@ -112,12 +112,12 @@ func main() {
 	})
 
 	publicAddr := ":" + cfg.Port
-	adminAddr := "127.0.0.1:" + cfg.AdminPort
+	adminAddr := ":" + cfg.AdminPort
 
 	fmt.Printf("🚀 iComment server started\n")
 	fmt.Printf("   Database: %s\n", cfg.DBPath)
 	fmt.Printf("   Public:   http://0.0.0.0%s\n", publicAddr)
-	fmt.Printf("   Admin:    http://%s\n", adminAddr)
+	fmt.Printf("   Admin:    http://0.0.0.0:%s (WARNING: Exposed on all interfaces)\n", cfg.AdminPort)
 
 	// Start admin server in goroutine
 	go func() {
