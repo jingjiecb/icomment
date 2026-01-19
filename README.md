@@ -395,6 +395,78 @@ iComment 支持通过 [Bark](https://github.com/Finb/Bark) 接收新评论通知
 
 启动后，每当有新评论提交时，你的 iPhone 会立即收到推送通知。
 
+## Docker 部署
+
+### 自动构建
+
+本项目配置了 GitHub Actions 自动构建 Docker 镜像。
+
+- **Edge 版本**: 每次 push 到 `main` 分支，会自动构建 `edge` 标签的镜像。
+- **Release 版本**: 打上 `v*` 格式的 git tag (如 v1.0.0)，会自动构建 `1.0.0` 和 `latest` 标签的镜像。
+
+### 配置 GitHub Secrets
+
+Fork 或使用本项目前，请在 GitHub 仓库设置中添加以下 Secrets (`Settings` -> `Secrets and variables` -> `Actions`):
+
+- `DOCKERHUB_USERNAME`: 你的 Docker Hub 用户名
+- `DOCKERHUB_TOKEN`: 你的 Docker Hub Access Token (建议使用 Token 而不是密码)
+
+### 使用 Docker Compose (推荐)
+
+项目根目录提供了 `docker-compose.yml` 示例，可直接使用。
+
+```yaml
+services:
+  icomment:
+    image: your-dockerhub-username/icomment:latest
+    container_name: icomment
+    restart: unless-stopped
+    ports:
+      - "7001:7001"
+      - "7002:7002"
+    volumes:
+      - ./data:/data
+    environment:
+      - ICOMMENT_BARK=your_bark_key  # 可选：配置 Bark 推送
+```
+
+启动服务：
+
+```bash
+docker-compose up -d
+```
+
+### 环境变量配置
+
+支持通过环境变量配置服务，方便在 Docker 环境中使用：
+
+| 环境变量 | 对应参数 | 默认值 | 说明 |
+|----------|----------|--------|------|
+| `ICOMMENT_DB` | `-db` | `/data/comments.db` (Docker中) | 数据库文件路径 |
+| `ICOMMENT_PORT` | `-port` | `7001` | 公开服务端口 |
+| `ICOMMENT_ADMIN_PORT` | `-admin-port` | `7002` | 管理服务端口 |
+| `ICOMMENT_BARK` | `-bark` | (空) | Bark 推送 Key |
+
+### 运行 Docker 容器 (手动)
+
+```bash
+# 运行最新稳定版
+docker run -d \
+  -p 7001:7001 \
+  -p 7002:7002 \
+  -v $(pwd)/data:/data \
+  --name icomment \
+  your-dockerhub-username/icomment:latest
+
+# 运行开发版
+docker run -d \
+  -p 7001:7001 \
+  -p 7002:7002 \
+  -v $(pwd)/data:/data \
+  --name icomment-edge \
+  your-dockerhub-username/icomment:edge
+```
+
 ## License
 
 MIT
