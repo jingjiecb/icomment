@@ -9,8 +9,6 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: docker.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build:
@@ -55,7 +53,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
           tags: |
             type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
             type=semver,pattern={{version}}
